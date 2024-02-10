@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
 import 'package:we_spot/services/shuffle_service.dart';
 import 'base_page.dart'; // Import BasePage
 import 'services/deck_service.dart'; // Import DeckService
 import 'widgets/round_card.dart'; // Import RoundCard widget
 import 'models/card_symbol.dart';
 import 'models/deck.dart';
+import 'constants/instructions.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -46,39 +49,56 @@ class _HomePageState extends State<HomePage> {
     return BasePage(
       title: 'Home',
       currentRoute: '/home',
-      child: _decks.isNotEmpty
-          ? GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              padding: const EdgeInsets.all(10),
-              itemCount: _decks.length, // Assuming there are only four decks
-              itemBuilder: (context, index) {
-                // Access the first card of each deck
-                var firstCardSymbols =
-                    _decks[index][0].map((e) => e.fileName).toList();
-                return Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Colors.transparent, // Temporary border color
-                      width: 2, // Border width
-                    ),
-                  ),
-                  child: RoundCard(
-                    symbols: firstCardSymbols,
-                    onSymbolTap: (symbol) {
-                      print('Symbol tapped: $symbol');
+      child: CustomScrollView(
+        slivers: <Widget>[
+          // Check if the decks are not empty to display the grid
+          _decks.isNotEmpty
+              ? SliverGrid(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      var firstCardSymbols =
+                          _decks[index][0].map((e) => e.fileName).toList();
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.transparent, // Temporary border color
+                            width: 2, // Border width
+                          ),
+                        ),
+                        child: RoundCard(
+                          symbols: firstCardSymbols,
+                          onSymbolTap: (symbol) {
+                            print('Symbol tapped: $symbol');
+                          },
+                        ),
+                      );
                     },
+                    childCount:
+                        _decks.length, // Assuming there are only four decks
                   ),
-                );
-              },
-            )
-          : const Center(
-              child:
-                  CircularProgressIndicator(), // Show loading indicator while decks are being prepared
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                )
+              : const SliverFillRemaining(
+                  child: const Center(
+                    child:
+                        CircularProgressIndicator(), // Show loading indicator while decks are being prepared
+                  ),
+                ),
+          // Add the Markdown description as a SliverToBoxAdapter to act as a single child scroll view
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: MarkdownBody(
+                data: INSTRUCTIONS, // Your Markdown data here
+              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }
