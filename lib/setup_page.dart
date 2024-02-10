@@ -17,11 +17,12 @@ class _SetupPageState extends State<SetupPage> {
     {'label': 'Hard - 57 cards, 8 symbols', 'value': 8},
     {'label': 'Extreme - 133 cards, 12 symbols', 'value': 12},
   ];
-  final deckSizes = [
-    {'label': 'Full Deck', 'value': 1.0},
-    {'label': '3/4 Deck', 'value': 0.75},
-    // ... other deck sizes
-  ];
+  // I'll deal with these later, after the basic game works
+  // final deckSizes = [
+  //   {'label': 'Full Deck', 'value': 1.0},
+  //   {'label': '3/4 Deck', 'value': 0.75},
+  //   // ... other deck sizes
+  // ];
 
   int selectedNumberOfSymbols = 6;
   double selectedDeckSize = 1;
@@ -44,23 +45,28 @@ class _SetupPageState extends State<SetupPage> {
         child: Card(
           child: Column(
             children: <Widget>[
-              ListTile(
+              const ListTile(
                 title: Text("Configure a new game",
                     style: TextStyle(color: Colors.grey)),
               ),
               _buildGameNumberInput(),
               _buildSymbolsDropdown(),
-              _buildDeckSizeDropdown(),
+              // _buildDeckSizeDropdown(),
               Padding(
-                padding: EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle navigation and pass parameters if needed
+                    // Navigate to the solitaire page with the selected game settings
+                    Navigator.pushNamed(context, '/solitaire', arguments: {
+                      'gameNumber': gameNumber,
+                      'numberOfSymbols': selectedNumberOfSymbols,
+                      'deckSize': selectedDeckSize,
+                    });
                   },
-                  child: Text("Start"),
                   style: ElevatedButton.styleFrom(
-                    primary: Colors.blue, // set the background color
+                    backgroundColor: Colors.blue,
                   ),
+                  child: const Text("Start"),
                 ),
               ),
             ],
@@ -72,7 +78,7 @@ class _SetupPageState extends State<SetupPage> {
 
   Widget _buildGameNumberInput() {
     return TextField(
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
         labelText: 'Game Number (optional)',
         hintText: 'Enter a number',
       ),
@@ -102,20 +108,20 @@ class _SetupPageState extends State<SetupPage> {
     );
   }
 
-  Widget _buildDeckSizeDropdown() {
-    return DropdownButton<double>(
-      value: selectedDeckSize,
-      onChanged: (newValue) {
-        setState(() {
-          selectedDeckSize = newValue!;
-        });
-      },
-      items: deckSizes.map((size) {
-        return DropdownMenuItem<double>(
-          value: size['value'] as double,
-          child: Text(size['label'] as String),
-        );
-      }).toList(),
-    );
-  }
+  // Widget _buildDeckSizeDropdown() {
+  //   return DropdownButton<double>(
+  //     value: selectedDeckSize,
+  //     onChanged: (newValue) {
+  //       setState(() {
+  //         selectedDeckSize = newValue!;
+  //       });
+  //     },
+  //     items: deckSizes.map((size) {
+  //       return DropdownMenuItem<double>(
+  //         value: size['value'] as double,
+  //         child: Text(size['label'] as String),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 }
