@@ -77,18 +77,7 @@ class _SolitairePageState extends State<SolitairePage> {
   }
 
   Widget _buildPortrait(double availableHeight) {
-    List<Widget> cards = [
-      topCard != null
-          ? RoundCard(
-              symbols: topCard!.map((e) => e.fileName).toList(),
-              onSymbolTap: (x) => print('Top Card tapped: $x'))
-          : Container(),
-      bottomCard != null
-          ? RoundCard(
-              symbols: bottomCard!.map((e) => e.fileName).toList(),
-              onSymbolTap: (x) => print('Bottom Card tapped: $x'))
-          : Container(),
-    ];
+    List<Widget> cards = _getTopTwoCards();
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -99,5 +88,48 @@ class _SolitairePageState extends State<SolitairePage> {
     );
   }
 
-  _buildLandscape(double availableWidth) {}
+  _buildLandscape(double availableWidth) {
+    List<Widget> cards = _getTopTwoCards();
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Container(width: availableWidth * 0.4, child: cards[0]),
+        Container(width: availableWidth * 0.4, child: cards[1])
+      ],
+    );
+  }
+
+  List<Widget> _getTopTwoCards() {
+    List<Widget> cards = [
+      topCard != null
+          ? RoundCard(
+              symbols: topCard!.map((e) => e.fileName).toList(),
+              onSymbolTap: symbolTapped)
+          : Container(),
+      bottomCard != null
+          ? RoundCard(
+              symbols: bottomCard!.map((e) => e.fileName).toList(),
+              onSymbolTap: symbolTapped)
+          : Container(),
+    ];
+    return cards;
+  }
+
+  symbolTapped(symbol) {
+    // We need to check the symbol tapped to see if it appears on both cards
+    var found = topCard!.any((c) => c.fileName == symbol) &&
+        bottomCard!.any((c) => c.fileName == symbol);
+
+    if (found) {
+      // This is a success, so we draw two more cards
+      setState(() {
+        currentDeckIndex -= 2;
+        topCard = _deck[currentDeckIndex];
+        bottomCard = _deck[currentDeckIndex - 1];
+      });
+    } else {
+      // This is a failure, but we do nothing yet
+    }
+  }
 }
