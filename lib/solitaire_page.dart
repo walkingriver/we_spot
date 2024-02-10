@@ -1,4 +1,8 @@
 // In home_page.dart
+import 'dart:math';
+
+import 'package:audioplayers/audioplayers.dart';
+import 'package:vibration/vibration.dart';
 import 'package:flutter/material.dart';
 
 import 'base_page.dart';
@@ -7,6 +11,8 @@ import 'models/deck.dart';
 import 'services/deck_service.dart';
 import 'services/shuffle_service.dart';
 import 'widgets/round_card.dart';
+
+enum Sounds { right, wrong, gameStart, gameOver }
 
 class SolitairePage extends StatefulWidget {
   @override
@@ -122,14 +128,82 @@ class _SolitairePageState extends State<SolitairePage> {
         bottomCard!.any((c) => c.fileName == symbol);
 
     if (found) {
+      playAlertSound(Sounds.right);
       // This is a success, so we draw two more cards
-      setState(() {
-        currentDeckIndex -= 2;
-        topCard = _deck[currentDeckIndex];
-        bottomCard = _deck[currentDeckIndex - 1];
-      });
+      var index = currentDeckIndex - 2;
+
+      if (index < 2) {
+        // We are out of cards - game over
+        print('Game over!');
+        playAlertSound(Sounds.gameOver);
+        // Navigate to a [future] game over page
+      } else {
+        setState(() {
+          currentDeckIndex -= 2;
+          topCard = _deck[currentDeckIndex];
+          bottomCard = _deck[currentDeckIndex - 1];
+        });
+      }
     } else {
       // This is a failure, but we do nothing yet
+      print('Not a match');
+
+      // Play a sound and vibrate
+      playAlertSound(Sounds.wrong);
+    }
+  }
+
+  void playAlertSound(Sounds sound) async {
+    const wrongSounds = [
+      'cartoon-jump-6462.mp3',
+      'failure-drum-sound-effect-2-7184.mp3',
+      'kick-tech-5825.mp3',
+      'stop-13692.mp3',
+      'wrong-buzzer-6268.mp3'
+          'start-13691.mp3',
+    ];
+
+    const rightSounds = [
+      'collectcoin-6075.mp3',
+    ];
+
+    const startGameSound = [
+      'start-computeraif-14572.mp3',
+    ];
+
+    const gameOverSound = [
+      'game-over-arcade-6435.mp3',
+    ];
+
+    final player = AudioPlayer();
+
+    var soundToPlay = '';
+
+    switch (sound) {
+      case Sounds.wrong:
+        // Pick a random wrong sound
+        soundToPlay = wrongSounds[Random().nextInt(wrongSounds.length)];
+        break;
+
+      case Sounds.right:
+        // Pick a random right sound
+        soundToPlay = rightSounds[Random().nextInt(rightSounds.length)];
+        break;
+
+      case Sounds.gameOver:
+        // Pick a random game over sound
+        soundToPlay = gameOverSound[Random().nextInt(gameOverSound.length)];
+        break;
+      case Sounds.gameStart:
+        soundToPlay = startGameSound[Random().nextInt(startGameSound.length)];
+        break;
+    }
+    await player.play(AssetSource('sounds/$soundToPlay'));
+  }
+
+  void vibratePhone() async {
+    if (await Vibration.hasVibrator() ?? false) {
+      Vibration.vibrate();
     }
   }
 }
