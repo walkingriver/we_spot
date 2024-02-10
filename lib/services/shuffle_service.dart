@@ -1,9 +1,13 @@
 import 'dart:math';
 
 class ShuffleService {
-  late Random _random = Random();
+  Random _random = Random();
 
   void seed(int seed) {
+    // Only seed the random number generator the seed is not 0
+    if (seed == 0) {
+      return;
+    }
     _random = Random(seed);
   }
 
