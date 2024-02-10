@@ -1,7 +1,7 @@
 import 'dart:math';
 
 class ShuffleService {
-  late Random _random;
+  late Random _random = Random();
 
   void seed(int seed) {
     _random = Random(seed);
