@@ -61,13 +61,12 @@ class PositionedSymbol extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Generate a random rotation angle
+    double randomRotation = math.Random().nextDouble() * 2 * math.pi;
+
     // Calculate the radius of the circle within which symbols will be placed
     double radius = cardSize / 2;
-
-    // Calculate optimal size for symbols based on the number of symbols and card radius
     double symbolSize = calculateSymbolSize(radius, totalCount);
-
-    // Determine the placement radius to evenly distribute symbols within the circle
     double placementRadius =
         radius - symbolSize; // Adjust to ensure symbols fit within the card
 
@@ -84,10 +83,13 @@ class PositionedSymbol extends StatelessWidget {
       top: offsetY,
       child: GestureDetector(
         onTap: onSymbolTap,
-        child: SvgPicture.asset(
-          'assets/symbols/$symbol',
-          width: symbolSize,
-          height: symbolSize,
+        child: Transform.rotate(
+          angle: randomRotation, // Apply random rotation
+          child: SvgPicture.asset(
+            'assets/symbols/$symbol',
+            width: symbolSize,
+            height: symbolSize,
+          ),
         ),
       ),
     );
