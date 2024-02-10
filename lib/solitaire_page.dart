@@ -62,21 +62,42 @@ class _SolitairePageState extends State<SolitairePage> {
       title: 'Solitaire',
       currentRoute: '/solitaire',
       child: OrientationBuilder(builder: (context, orientation) {
+        // Determine the total available height
+        double availableHeight = MediaQuery.of(context).size.height -
+            MediaQuery.of(context).padding.top;
+        double availableWidth = MediaQuery.of(context).size.width;
+
         return Padding(
             padding: const EdgeInsets.all(8.0),
             child: orientation == Orientation.portrait
-                ? _buildPortrait()
-                : _buildLandscape());
+                ? _buildPortrait(availableHeight)
+                : _buildLandscape(availableWidth));
       }),
     );
   }
 
-  Widget _buildPortrait() {
+  Widget _buildPortrait(double availableHeight) {
+    List<Widget> cards = [
+      topCard != null
+          ? RoundCard(
+              symbols: topCard!.map((e) => e.fileName).toList(),
+              onSymbolTap: (x) => print('Top Card tapped: $x'))
+          : Container(),
+      bottomCard != null
+          ? RoundCard(
+              symbols: bottomCard!.map((e) => e.fileName).toList(),
+              onSymbolTap: (x) => print('Bottom Card tapped: $x'))
+          : Container(),
+    ];
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[],
+      children: [
+        Container(height: availableHeight * 0.4, child: cards[0]),
+        Container(height: availableHeight * 0.4, child: cards[1])
+      ],
     );
   }
 
-  _buildLandscape() {}
+  _buildLandscape(double availableWidth) {}
 }
