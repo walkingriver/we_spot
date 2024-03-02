@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/link.dart';
 import 'package:we_spot/themed_background_container.dart';
 
 class BasePage extends StatelessWidget {
@@ -14,41 +16,35 @@ class BasePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        leading: currentRoute != '/home'
-            ? IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context))
-            : null,
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            DrawerHeader(
-              child: Text('Menu'),
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
+              child: Text('Menu'),
             ),
-            ListTile(
-              title: Text('Home'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/home');
-              },
-            ),
-            ListTile(
-              title: Text('New Game'),
-              onTap: () {
-                Navigator.pushNamed(context, '/setup');
-              },
-            ),
-            ListTile(
-              title: Text('Image Credits'),
-              onTap: () {
-                Navigator.pushNamed(context, '/image-credits');
-              },
-            ),
-            // ... other ListTiles for navigation
+            Link(
+                uri: Uri.parse('/home'),
+                builder: (context, followLink) => ListTile(
+                      title: const Text('Home'),
+                      onTap: followLink,
+                    )),
+            Link(
+                uri: Uri.parse('/setup'),
+                builder: (context, followLink) => ListTile(
+                      title: const Text('New Game'),
+                      onTap: followLink,
+                    )),
+            Link(
+                uri: Uri.parse('/image-credits'),
+                builder: (context, followLink) => ListTile(
+                      title: const Text('Image Credits'),
+                      onTap: followLink,
+                    )),
           ],
         ),
       ),

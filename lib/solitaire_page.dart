@@ -17,6 +17,12 @@ enum Sounds { right, wrong, gameStart, gameOver }
 class SolitairePage extends StatefulWidget {
   @override
   _SolitairePageState createState() => _SolitairePageState();
+
+  const SolitairePage(
+      {super.key,
+      required int gameNumber,
+      required int numberOfSymbols,
+      required double deckSize});
 }
 
 class _SolitairePageState extends State<SolitairePage> {
@@ -51,9 +57,9 @@ class _SolitairePageState extends State<SolitairePage> {
             {};
 
     setState(() {
-      gameNumber = args['gameNumber'] ?? 0;
-      numberOfSymbols = args['numberOfSymbols'] ?? 6;
-      deckSize = args['deckSize'] ?? 1.0;
+      gameNumber = int.parse(args['gameNumber']);
+      numberOfSymbols = int.parse(args['numberOfSymbols']);
+      deckSize = double.parse(args['deckSize']);
       _shuffleService.seed(gameNumber);
       _deckService = DeckService(_shuffleService);
       _deck = _deckService.buildDeck(numberOfSymbols);

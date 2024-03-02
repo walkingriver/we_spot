@@ -1,6 +1,7 @@
 // In home_page.dart
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'base_page.dart';
 
 class SetupPage extends StatefulWidget {
@@ -57,11 +58,8 @@ class _SetupPageState extends State<SetupPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     // Navigate to the solitaire page with the selected game settings
-                    Navigator.pushNamed(context, '/solitaire', arguments: {
-                      'gameNumber': gameNumber,
-                      'numberOfSymbols': selectedNumberOfSymbols,
-                      'deckSize': selectedDeckSize,
-                    });
+                    context.go(
+                        '/solitaire/$gameNumber/$selectedNumberOfSymbols/$selectedDeckSize');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
