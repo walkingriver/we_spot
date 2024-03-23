@@ -1,43 +1,54 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
 
-class RoundCard extends StatelessWidget {
+class RoundCard extends HookWidget {
   final List<String> symbols; // Assuming symbols are identified by file names
   final Function(String) onSymbolTap;
 
-  RoundCard({Key? key, required this.symbols, required this.onSymbolTap})
+  const RoundCard({Key? key, required this.symbols, required this.onSymbolTap})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final controller =
+        useAnimationController(duration: const Duration(seconds: 2));
     return LayoutBuilder(builder: (context, constraints) {
       double cardSize = math.min(constraints.maxWidth, constraints.maxHeight);
 
-      return Center(
-        child: Container(
-          width: cardSize,
-          height: cardSize,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.white,
-          ),
-          child: Stack(
-            children: symbols.asMap().entries.map((entry) {
-              int index = entry.key;
-              String symbol = entry.value;
+      return AnimatedBuilder(
+          animation: controller,
+          child: Center(
+            child: Container(
+              width: cardSize,
+              height: cardSize,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              child: Stack(
+                children: symbols.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String symbol = entry.value;
 
-              return PositionedSymbol(
-                symbol: symbol,
-                index: index,
-                totalCount: symbols.length,
-                onSymbolTap: () => onSymbolTap(symbol),
-                cardSize: cardSize,
-              );
-            }).toList(),
+                  return PositionedSymbol(
+                    symbol: symbol,
+                    index: index,
+                    totalCount: symbols.length,
+                    onSymbolTap: () => onSymbolTap(symbol),
+                    cardSize: cardSize,
+                  );
+                }).toList(),
+              ),
+            ),
           ),
-        ),
-      );
+          builder: (context, child) {
+            return Transform.rotate(
+              angle: controller.value * 2 * math.pi,
+              child: child,
+            );
+          });
     });
   }
 }
