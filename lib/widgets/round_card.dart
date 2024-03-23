@@ -2,18 +2,52 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:we_spot/models/card_symbol.dart';
+
+enum RollDirection { east, west }
 
 class RoundCard extends HookWidget {
-  final List<String> symbols; // Assuming symbols are identified by file names
-  final Function(String) onSymbolTap;
+  final ValueNotifier<List<CardSymbol>> symbolsNotifier;
+  final Function(CardSymbol) onSymbolTap;
+  final RollDirection rollDirection;
 
-  const RoundCard({Key? key, required this.symbols, required this.onSymbolTap})
+  const RoundCard(
+      {Key? key,
+      required this.symbolsNotifier,
+      required this.onSymbolTap,
+      required this.rollDirection})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final controller =
-        useAnimationController(duration: const Duration(seconds: 2));
+        useAnimationController(duration: const Duration(milliseconds: 500));
+    final animation = Tween<double>(
+            begin: 0, end: rollDirection == RollDirection.west ? -1 : 1)
+        .animate(CurvedAnimation(parent: controller, curve: Curves.easeInOut));
+
+    final externalSymbolsNotifier = symbolsNotifier;
+    final internalSymbolsNotifier =
+        useState<List<CardSymbol>>(externalSymbolsNotifier.value);
+
+    useEffect(() {
+      listener() {
+        controller.forward().then((_) {
+          Future.delayed(Duration(milliseconds: 250), () {
+            internalSymbolsNotifier.value = externalSymbolsNotifier.value;
+            controller.reverse();
+          });
+        });
+      }
+
+      externalSymbolsNotifier.addListener(listener);
+      return () {
+        externalSymbolsNotifier.removeListener(listener);
+      };
+    }, [externalSymbolsNotifier]);
+
+    List<CardSymbol> symbols = internalSymbolsNotifier.value;
+
     return LayoutBuilder(builder: (context, constraints) {
       double cardSize = math.min(constraints.maxWidth, constraints.maxHeight);
 
@@ -30,10 +64,10 @@ class RoundCard extends HookWidget {
               child: Stack(
                 children: symbols.asMap().entries.map((entry) {
                   int index = entry.key;
-                  String symbol = entry.value;
+                  CardSymbol symbol = entry.value;
 
                   return PositionedSymbol(
-                    symbol: symbol,
+                    symbol: symbol.fileName,
                     index: index,
                     totalCount: symbols.length,
                     onSymbolTap: () => onSymbolTap(symbol),
@@ -44,9 +78,13 @@ class RoundCard extends HookWidget {
             ),
           ),
           builder: (context, child) {
-            return Transform.rotate(
-              angle: controller.value * 2 * math.pi,
-              child: child,
+            return Transform.translate(
+              offset: Offset(
+                  animation.value * MediaQuery.of(context).size.width, 0),
+              child: Transform.rotate(
+                angle: animation.value * 2 * math.pi,
+                child: child,
+              ),
             );
           });
     });

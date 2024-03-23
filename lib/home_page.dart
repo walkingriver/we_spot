@@ -56,8 +56,9 @@ class _HomePageState extends State<HomePage> {
               ? SliverGrid(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      var firstCardSymbols =
-                          _decks[index][0].map((e) => e.fileName).toList();
+                      var firstCardSymbols = _decks[index][0];
+                      var firstCardSymbolsNotifier =
+                          ValueNotifier(firstCardSymbols);
                       return Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -66,7 +67,8 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         child: RoundCard(
-                          symbols: firstCardSymbols,
+                          symbolsNotifier: firstCardSymbolsNotifier,
+                          rollDirection: RollDirection.east,
                           onSymbolTap: (symbol) {
                             print('Symbol tapped: $symbol');
                           },

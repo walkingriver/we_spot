@@ -11,6 +11,7 @@ import 'models/deck.dart';
 import 'services/deck_service.dart';
 import 'services/shuffle_service.dart';
 import 'widgets/round_card.dart';
+import 'widgets/round_card.dart';
 
 enum Sounds { right, wrong, gameStart, gameOver }
 
@@ -35,10 +36,13 @@ class _SolitairePageState extends State<SolitairePage> {
   int numberOfSymbols = 6;
   double deckSize = 1.0;
 
-  // I need to keep track of the deck and the two cards on the table
+  final topCardSymbolsNotifier = ValueNotifier<List<CardSymbol>>([]);
+  final bottomCardSymbolsNotifier = ValueNotifier<List<CardSymbol>>([]);
+
   int currentDeckIndex = 0;
-  List<CardSymbol>? topCard;
-  List<CardSymbol>? bottomCard;
+
+  RoundCard? topCard;
+  RoundCard? bottomCard;
 
   // Let's keep a running total of the time spent in the game
 
@@ -47,6 +51,15 @@ class _SolitairePageState extends State<SolitairePage> {
     super.initState();
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _retrieveRouteArguments());
+
+    // topCard = RoundCard(
+    //     symbolsNotifier: topCardSymbolsNotifier,
+    //     onSymbolTap: symbolTapped,
+    //     rollDirection: RollDirection.west);
+    // bottomCard = RoundCard(
+    //     symbolsNotifier: bottomCardSymbolsNotifier,
+    //     onSymbolTap: symbolTapped,
+    //     rollDirection: RollDirection.east);
 
     _shuffleService = ShuffleService();
   }
@@ -64,8 +77,12 @@ class _SolitairePageState extends State<SolitairePage> {
       _deckService = DeckService(_shuffleService);
       _deck = _deckService.buildDeck(numberOfSymbols);
       currentDeckIndex = _deck.length - 1;
-      topCard = _deck[currentDeckIndex];
-      bottomCard = _deck[currentDeckIndex - 1];
+
+      // Set up the deck
+      var currentTopCard = _deck[currentDeckIndex];
+      var currentBottomCard = _deck[currentDeckIndex - 1];
+      topCardSymbolsNotifier.value = currentTopCard;
+      bottomCardSymbolsNotifier.value = currentBottomCard;
     });
   }
 
@@ -113,28 +130,27 @@ class _SolitairePageState extends State<SolitairePage> {
   }
 
   List<Widget> _getTopTwoCards() {
-    List<Widget> cards = [
-      topCard != null
-          ? RoundCard(
-              symbols: topCard!.map((e) => e.fileName).toList(),
-              onSymbolTap: symbolTapped)
-          : Container(),
-      bottomCard != null
-          ? RoundCard(
-              symbols: bottomCard!.map((e) => e.fileName).toList(),
-              onSymbolTap: symbolTapped)
-          : Container(),
-    ];
-    return cards;
+    topCard = RoundCard(
+        symbolsNotifier: topCardSymbolsNotifier,
+        onSymbolTap: symbolTapped,
+        rollDirection: RollDirection.west);
+    bottomCard = RoundCard(
+        symbolsNotifier: bottomCardSymbolsNotifier,
+        onSymbolTap: symbolTapped,
+        rollDirection: RollDirection.east);
+
+    return [topCard!, bottomCard!];
   }
 
-  symbolTapped(symbol) {
+  symbolTapped(CardSymbol symbol) async {
     // We need to check the symbol tapped to see if it appears on both cards
-    var found = topCard!.any((c) => c.fileName == symbol) &&
-        bottomCard!.any((c) => c.fileName == symbol);
+    var found = topCardSymbolsNotifier.value
+            .any((c) => c.fileName == symbol.fileName) &&
+        bottomCardSymbolsNotifier.value
+            .any((c) => c.fileName == symbol.fileName);
 
     if (found) {
-      playAlertSound(Sounds.right);
+      await playAlertSound(Sounds.right);
       // This is a success, so we draw two more cards
       var index = currentDeckIndex - 2;
 
@@ -146,8 +162,10 @@ class _SolitairePageState extends State<SolitairePage> {
       } else {
         setState(() {
           currentDeckIndex -= 2;
-          topCard = _deck[currentDeckIndex];
-          bottomCard = _deck[currentDeckIndex - 1];
+          var currentTopCard = _deck[currentDeckIndex];
+          var currentBottomCard = _deck[currentDeckIndex - 1];
+          topCardSymbolsNotifier.value = currentTopCard;
+          bottomCardSymbolsNotifier.value = currentBottomCard;
         });
       }
     } else {
@@ -155,11 +173,11 @@ class _SolitairePageState extends State<SolitairePage> {
       print('Not a match');
 
       // Play a sound and vibrate
-      playAlertSound(Sounds.wrong);
+      await playAlertSound(Sounds.wrong);
     }
   }
 
-  void playAlertSound(Sounds sound) async {
+  Future playAlertSound(Sounds sound) async {
     const wrongSounds = [
       'cartoon-jump-6462.mp3',
       'failure-drum-sound-effect-2-7184.mp3',
@@ -204,7 +222,8 @@ class _SolitairePageState extends State<SolitairePage> {
         soundToPlay = startGameSound[Random().nextInt(startGameSound.length)];
         break;
     }
-    await player.play(AssetSource('sounds/$soundToPlay'));
+
+    return player.play(AssetSource('sounds/$soundToPlay'));
   }
 
   void vibratePhone() async {
