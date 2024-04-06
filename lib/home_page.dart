@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:we_spot/services/shuffle_service.dart';
 import 'base_page.dart'; // Import BasePage
 import 'services/deck_service.dart'; // Import DeckService
