@@ -67,7 +67,7 @@ class RoundCard extends HookWidget {
                   CardSymbol symbol = entry.value;
 
                   return PositionedSymbol(
-                    symbol: symbol.fileName,
+                    symbol: symbol.emoji,
                     index: index,
                     totalCount: symbols.length,
                     onSymbolTap: () => onSymbolTap(symbol),
@@ -134,10 +134,11 @@ class PositionedSymbol extends StatelessWidget {
         onTap: onSymbolTap,
         child: Transform.rotate(
           angle: randomRotation, // Apply random rotation
-          child: SvgPicture.asset(
-            'assets/symbols/$symbol',
-            width: symbolSize,
-            height: symbolSize,
+          child: Text(
+            symbol,
+            style: TextStyle(
+              fontSize: symbolSize,
+            ),
           ),
         ),
       ),

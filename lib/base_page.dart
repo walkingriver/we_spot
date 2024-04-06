@@ -39,12 +39,6 @@ class BasePage extends StatelessWidget {
                       title: const Text('New Game'),
                       onTap: followLink,
                     )),
-            Link(
-                uri: Uri.parse('/image-credits'),
-                builder: (context, followLink) => ListTile(
-                      title: const Text('Image Credits'),
-                      onTap: followLink,
-                    )),
           ],
         ),
       ),

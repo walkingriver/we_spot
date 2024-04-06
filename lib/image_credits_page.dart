@@ -20,9 +20,9 @@ class ImageCreditsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     List<CardSymbol> allSymbols = SYMBOLS
         .map((symbol) => CardSymbol(
+              emoji: symbol.emoji,
               fileName: symbol.fileName,
-              referralUrl:
-                  'https://pixabay.com/vectors/${symbol.fileName.replaceFirst('.svg', '')}',
+              referralUrl: '',
             ))
         .toList();
 
