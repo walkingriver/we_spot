@@ -137,10 +137,10 @@ class PositionedSymbol extends StatelessWidget {
           angle: randomRotation, // Apply random rotation
           child: Text(
             symbol,
-            style: GoogleFonts.getFont('Lato',
+            style: GoogleFonts.roboto(
                 textStyle: Theme.of(context).textTheme.displayLarge,
                 fontSize: symbolSize,
-                fontWeight: FontWeight.w700),
+                fontWeight: FontWeight.w500),
           ),
         ),
       ),
